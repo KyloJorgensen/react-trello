@@ -53,20 +53,39 @@
 	    displayName: 'Card',
 	
 	    render: function render() {
-	        var job = 'This is a card';
 	        return React.createElement(
 	            'div',
 	            { className: 'card' },
 	            React.createElement(
 	                'div',
 	                { className: 'card-content' },
-	                job,
-	                React.createElement(
-	                    'p',
-	                    null,
-	                    'Hello'
-	                )
+	                this.props.card.text
 	            )
+	        );
+	    }
+	});
+	
+	var AddCardForm = React.createClass({
+	    displayName: 'AddCardForm',
+	
+	    getInitialState: function getInitialState() {
+	        return { value: '' };
+	    },
+	    onChange: function onChange(event) {
+	        this.setState({ value: event.target.value });
+	        this.props.change(event);
+	    },
+	    onSubmit: function onSubmit(event) {
+	        event.preventDefault();
+	        this.props.submit(event);
+	        this.setState({ value: '' });
+	    },
+	    render: function render() {
+	        return React.createElement(
+	            'form',
+	            { onSubmit: this.onSubmit },
+	            React.createElement('input', { type: 'text', value: this.state.value, onChange: this.onChange, placeholder: 'type here' }),
+	            React.createElement('input', { type: 'submit' })
 	        );
 	    }
 	});
@@ -74,15 +93,32 @@
 	var CardList = React.createClass({
 	    displayName: 'CardList',
 	
+	    getInitialState: function getInitialState() {
+	        return this.props.list;
+	    },
+	    onAddSubmit: function onAddSubmit() {
+	        this.setState({
+	            cards: this.state.cards.concat({ text: this.state.value })
+	        });
+	    },
+	    onAddInputChanged: function onAddInputChanged(event) {
+	        this.setState({ value: event.target.value });
+	    },
 	    render: function render() {
 	        var cards = [];
-	        for (var i = 0; i < 3; i++) {
-	            cards.push(React.createElement(Card, null));
+	        for (var i = 0; i < this.state.cards.length; i++) {
+	            cards.push(React.createElement(Card, { card: this.state.cards[i] }));
 	        }
 	        return React.createElement(
 	            'div',
 	            { className: 'card-list' },
-	            cards
+	            React.createElement(
+	                'h1',
+	                null,
+	                this.state.title
+	            ),
+	            cards,
+	            React.createElement(AddCardForm, { submit: this.onAddSubmit, change: this.onAddInputChanged })
 	        );
 	    }
 	});
@@ -91,20 +127,87 @@
 	    displayName: 'Board',
 	
 	    render: function render() {
+	        console.log(this.props.lists);
 	        var board = [];
-	        for (var i = 0; i < 3; i++) {
-	            board.push(React.createElement(CardList, null));
+	        for (var i = 0; i < this.props.lists.length; i++) {
+	            board.push(React.createElement(CardList, { list: this.props.lists[i] }));
 	        }
 	        return React.createElement(
 	            'div',
-	            { className: 'card-list' },
+	            { className: 'board' },
+	            React.createElement(
+	                'h1',
+	                null,
+	                this.props.title
+	            ),
 	            board
 	        );
 	    }
 	});
 	
+	var LISTS = [{
+	    title: 'yeah',
+	    cards: [{
+	        text: "hwfafasd"
+	    }, {
+	        text: "asdfasfa"
+	    }]
+	}, {
+	    title: 'boo',
+	    cards: [{
+	        text: "hwfafasd"
+	    }, {
+	        text: "asdfasfa"
+	    }]
+	}];
+	
+	var StateBoard = function StateBoard() {
+	    return React.createElement(
+	        'div',
+	        { className: 'boards' },
+	        React.createElement(Board, { title: 'BOB\'s Big Board', lists: LISTS })
+	    );
+	};
+	
+	// var SoundCloudEmbed = function(props) {
+	//     var playerUrl = 'https://w.soundcloud.com/player/';
+	//     var trackUrl = 'https://api.soundcloud.com/tracks/' + props.trackId;
+	//     var options = 'auto_play=true&hide_related=false&show_comments=true&show_user=true&show_reposts=false&visual=true';
+	//     var src = playerUrl + '?url=' + trackUrl + '&' + options;
+	//     return <iframe width="100%" height="450" scrolling="no" frameborder="no" src={src}></iframe>;
+	// };
+	
+	// var Button = function(props) {
+	//     return <button onClick={props.onClick}>{props.text}</button>;
+	// };
+	
+	// var Surprise = React.createClass({
+	//     getInitialState: function() {
+	//         return {
+	//             clicked: false
+	//         };
+	//     },
+	//     onButtonClick: function() {
+	//         this.setState({
+	//             clicked: true
+	//         });
+	//     },
+	//     render: function() {
+	//         return (
+	//             <div>
+	//                 <Button onClick={this.onButtonClick} text="Ready to be amazed?" />
+	//                 {this.state.clicked ? <SoundCloudEmbed trackId="191075550" /> : null}
+	//             </div>
+	//         );
+	//     }
+	// });
+	
+	// document.addEventListener('DOMContentLoaded', function() {
+	//     ReactDOM.render(<Surprise />, document.getElementById('app'));
+	// });
+	
 	document.addEventListener('DOMContentLoaded', function () {
-	    ReactDOM.render(React.createElement(Board, null), document.getElementById('app'));
+	    ReactDOM.render(React.createElement(StateBoard, null), document.getElementById('app'));
 	});
 
 /***/ },
